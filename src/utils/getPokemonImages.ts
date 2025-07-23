@@ -1,22 +1,32 @@
-function fetchImages(imports: Record<string, string>) {
-    const images: Record<string, string> = {};
+type ImageMap = Record<string, string>;
 
-    for (const path in imports) {
-        const cleanName = path.replace(/^.*[\\/]/, "").replace(/\.\w+$/, "");
-        images[cleanName] = imports[path] as string;
+function fetchImages(glob: Record<string, unknown>): ImageMap {
+    const images: ImageMap = {};
+
+    for (const path in glob) {
+        const value = glob[path];
+        const fileName = path.split("/").pop();
+        if (!fileName) continue;
+
+        const id = fileName.split(".")[0];
+
+        images[id] =
+            typeof value === "object" && value && "default" in value
+                ? (value as { default: string }).default
+                : (value as string);
     }
 
     return images;
 }
 
-const shinyImages = import.meta.glob(
-    "../assets/pokemons/shiny/*.{png,jpg,jpeg,svg}",
-    { eager: true }
-) as Record<string, string>;
-const defaultImagesRaw = import.meta.glob(
-    "../assets/pokemons/default/*.{png,jpg,jpeg,svg}",
-    { eager: true }
-) as Record<string, string>;
+export const images = fetchImages(
+    import.meta.glob("../assets/pokemons/shiny/*.{png,jpg,jpeg,svg}", {
+        eager: true,
+    })
+);
 
-export const images = fetchImages(shinyImages);
-export const defaultImages = fetchImages(defaultImagesRaw);
+export const defaultImages = fetchImages(
+    import.meta.glob("../assets/pokemons/default/*.{png,jpg,jpeg,svg}", {
+        eager: true,
+    })
+);
