@@ -25,7 +25,11 @@ function Search() {
     return (
         <>
             <div className="search">
-                <input type="text" />
+                <input
+                    type="text"
+                    className="pokemon-searchBar"
+                    placeholder="Search Pokemon"
+                />
                 <PokemonCardGrid pokemons={randomPokemons!} />
             </div>
         </>
